@@ -1,5 +1,5 @@
-int ledPin=7;
-int sensorPin=6;
+int ledPin=22;
+int sensorPin=23;
 boolean val =0;
 
 void setup(){

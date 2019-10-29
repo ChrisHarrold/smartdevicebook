@@ -1,6 +1,6 @@
-#define soundSensor 6
-#define REDLED 7
-#define GREENLED 8
+#define soundSensor 23
+#define REDLED 21
+#define GREENLED 22
 boolean LEDStatus=false;
 
 void setup() {
@@ -21,10 +21,7 @@ void loop() {
 
     if(LEDStatus==false){
         LEDStatus=true;
-        Serial.println("Detected Sound");
         digitalWrite(REDLED,HIGH); // this turns on the LED when sound it detected
-        //delay(2000); // wait 2 seconds
-        //digitalWrite(LED, LOW); // Re-set the LED to being off again
     }
     else{
         LEDStatus=false;
