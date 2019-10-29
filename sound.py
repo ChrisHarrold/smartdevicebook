@@ -20,13 +20,13 @@ GPIO.setup(green_led, GPIO.OUT)
 #turn on the green LED so you know we are working
 GPIO.output(green_led, GPIO.HIGH)
 
-# Define a listener on the sound sensor to wait for a signal
+# Define a listener on the sound sensor to wait for a signal - this will cycle the LED as sound comes in
 def callback(sensor_in):
         if GPIO.input(sensor_in):
-                print "Sound detected!"
+                print "Sound detected - turn on"
                 GPIO.output(red_led, GPIO.HIGH)
         else:
-                print "No sound at this time"
+                print "Sound detected - turn off"
                 GPIO.output(red_led, GPIO.LOW)
 
 GPIO.add_event_detect(sensor_in, GPIO.BOTH, bouncetime=300)  # let us know when the pin goes HIGH or LOW
