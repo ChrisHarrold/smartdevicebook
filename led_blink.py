@@ -4,7 +4,7 @@ import time
 #Define the pin we are going to use to power the LED
 # the number of times it will blink
 # and the time between blinks
-pina = 21
+pina = 4
 iterations = 10
 interval = .50
 
