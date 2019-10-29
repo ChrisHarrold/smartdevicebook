@@ -1,4 +1,4 @@
-#define LED 22  //instead of remembering which pin this makes it simpler to reference later in the code
+#define LED 2  //instead of remembering which pin this makes it simpler to reference later in the code
 int loops = 0;
 
 void setup() {
