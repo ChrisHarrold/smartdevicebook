@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 
 // Set GPIOs for LEDs and sensors
-#define PIRSensor = 19
+#define PIRSensor 19
 #define soundSensor 23
 #define REDLED 21
 #define GREENLED 22
@@ -88,7 +88,7 @@ void setup_wifi() {
 
 // Checks if motion was detected, sets LED HIGH and starts a timer
 void IRAM_ATTR MotionAlert() {
-    Serial.println("Motion Detected!")
+    Serial.println("Motion Detected!");
     Timer_Start = true;
     Alert_1 = true;
     motion_Last_Triggered = millis();
@@ -102,7 +102,7 @@ void setup() {
     pinMode(REDLED,OUTPUT);
     pinMode(GREENLED,OUTPUT);
     
-    pinMode(motionSensor, INPUT_PULLUP);
+    pinMode(PIRSensor, INPUT_PULLUP);
     
     // Interrupts allow the sensor to trigger even if the application is doing something else
     // this way the loop can just run and listen instead of stopping all the time - this is the real-time advantage
@@ -130,7 +130,7 @@ void loop() {
         if(LEDStatus==false){
             LEDStatus=true;
             digitalWrite(REDLED,HIGH); // this turns on the LED when sound is detected
-            Serial.println("Sound Detected!")
+            Serial.println("Sound Detected!");
             Sound_Alert = true;
         }
         else{
@@ -143,7 +143,7 @@ void loop() {
     if(Timer_Start && (now - motion_Last_Triggered > (timeSeconds*1000))) {
         Timer_Start = false;
         Alert_1 = false;
-        Serial.println("Motion Stopped")
+        Serial.println("Motion Stopped");
     }
 
     // check the connection status to MQTT before publishing messages - reconnect if needed
@@ -153,12 +153,12 @@ void loop() {
 
     if(Alert_1) {
         Serial.println("Sending Alert!");
-        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ACTIVE\""){
+        while (!client.publish("Security", "\"Unit\":\"Collector_1\", \"Alert\":\"ACTIVE\"")){
             Serial.print(".");
         } 
     } else {
         Serial.println("Alert Cleared");
-        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ENDED\""){
+        while (!client.publish("Security", "\"Unit\":\"Collector_1\", \"Alert\":\"ENDED\"")){
             Serial.print(".");
         }
     
