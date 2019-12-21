@@ -127,32 +127,32 @@ void loop() {
 
   //DHT11 read and collect variables
   float humidity = dht.readHumidity();
-    dtostrf(humidity, 4, 2, str_humidity);
-    // Read temperature as Celsius (the default)
-    float temperature = dht.readTemperature();
-    dtostrf(temperature, 4, 2, str_temperature);
-    // Check if any reads failed and if so alert and set values to 0 so the process can continue
-    if (isnan(humidity) || isnan(temperature)) {
-        Serial.println("Failed to read from DHT sensor!");
-        str_humidity = "0";
-        str_temperature = "0";
-    } else {
-        // print the result to Terminal
-        Serial.print("Humidity: ");
-        Serial.print(humidity);
-        Serial.print(" %\t");
-        Serial.print("Temperature: ");
-        Serial.print(temperature);
-        Serial.println(" *C ");
-    }
+  // Read temperature as Celsius (the default)
+  float temperature = dht.readTemperature();
+  // Check if any reads failed and if so alert and set values to 0 so the process can continue
+  if (isnan(humidity) || isnan(temperature)) {
+      Serial.println("Failed to read from DHT sensor!");
+      temperature = 0;
+      humidity = 0;
+      dtostrf(humidity, 4, 2, str_humidity);
+      dtostrf(temperature, 4, 2, str_temperature);
+  } else {
+      dtostrf(temperature, 4, 2, str_temperature);
+      dtostrf(humidity, 4, 2, str_humidity);
+      // print the result to Terminal
+      Serial.print("Humidity: ");
+      Serial.print(humidity);
+      Serial.print(" %\t");
+      Serial.print("Temperature: ");
+      Serial.print(temperature);
+      Serial.println(" *C ");
+  }
 
   //Read value and print to serial for S1
 
     float soil_moisture = analogRead(probe);
-    Serial.print(soil_moisture); Serial.print("\t");
-    Serial.println();
     dtostrf(soil_moisture, 4, 2, s1);
-    Serial.print("["); Serial.print(s1); Serial.print("]");
+    Serial.print("Soil moisture level (raw): ["); Serial.print(s1); Serial.println("]");
    
     int L1 = analogRead(light);
     Serial.print("Light level: ");
