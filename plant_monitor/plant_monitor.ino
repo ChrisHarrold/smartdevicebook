@@ -151,9 +151,8 @@ void loop() {
 
     float soil_moisture = analogRead(probe);
     Serial.print(soil_moisture); Serial.print("\t");
-    sm_value = soil_moisture;
     Serial.println();
-    dtostrf(sm_value[0], 4, 2, s1);
+    dtostrf(soil_moisture, 4, 2, s1);
     Serial.print("["); Serial.print(s1); Serial.print("]");
    
     int L1 = analogRead(light);
