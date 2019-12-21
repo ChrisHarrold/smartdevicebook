@@ -88,17 +88,22 @@ void setup_wifi() {
 
 // Checks if motion was detected, sets LED HIGH and starts a timer
 void IRAM_ATTR MotionAlert() {
-    Serial.println("Motion Detected!")
+    Serial.println("Motion Detected!");
     Timer_Start = true;
-    Alert_1 = true;
     motion_Last_Triggered = millis();
+    Alert_1 = true;
+}
+
+void IRAM_ATTR SoundAlert() {
+    Serial.println("Sound Detected!");
+    Sound_Alert = true;
 }
 
 void setup() {
     Serial.begin(9600);
     Serial.println("preparing to listen for sounds and watch for motion");
 
-    pinMode(soundSensor,INPUT);
+    pinMode(soundSensor,INPUT_PULLUP);
     pinMode(REDLED,OUTPUT);
     pinMode(GREENLED,OUTPUT);
     
@@ -107,6 +112,7 @@ void setup() {
     // Interrupts allow the sensor to trigger even if the application is doing something else
     // this way the loop can just run and listen instead of stopping all the time - this is the real-time advantage
     attachInterrupt(digitalPinToInterrupt(PIRSensor), MotionAlert, RISING);
+    attachInterrupt(digitalPinToInterrupt(soundSensor), SoundAlert, RISING);
 
     // Define the MQTT Server connection settings
     client.setServer(mqtt_server, 1883);  
@@ -122,28 +128,10 @@ void setup() {
 
 void loop() {
   // Current time
-  now = millis();
-
-    int SensorData=digitalRead(soundSensor); 
-    
-    if(SensorData==1){
-        if(LEDStatus==false){
-            LEDStatus=true;
-            digitalWrite(REDLED,HIGH); // this turns on the LED when sound is detected
-            Serial.println("Sound Detected!")
-            Sound_Alert = true;
-        }
-        else{
-            LEDStatus=false;
-            Sound_Alert = false;
-            digitalWrite(REDLED,LOW); //when the sound stops the LED will turn off
-        }
-    }
-
+    now = millis();
     if(Timer_Start && (now - motion_Last_Triggered > (timeSeconds*1000))) {
         Timer_Start = false;
-        Alert_1 = false;
-        Serial.println("Motion Stopped")
+        Serial.println("Motion Stopped");
     }
 
     // check the connection status to MQTT before publishing messages - reconnect if needed
@@ -151,14 +139,14 @@ void loop() {
         reconnectMQ();
     }
 
-    if(Alert_1) {
+    if(Alert_1 or Timer_Start) {
         Serial.println("Sending Alert!");
-        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ACTIVE\""){
+        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ACTIVE\"")){
             Serial.print(".");
         } 
     } else {
         Serial.println("Alert Cleared");
-        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ENDED\""){
+        while (!client.publish("Security", \"Unit\":\"Collector_1\", \"Alert\":\"ENDED\"")){
             Serial.print(".");
         }
     
