@@ -10,9 +10,9 @@
 boolean LEDStatus=false;
 
 // declare our Wifi and MQTT connections and other constant settings for the network
-const char* ssid     = "YOUR_SSID_HERE";            // The SSID (name) of the Wi-Fi network you want to connect to
-const char* password = "YOUR_PASSWORD_HERE";        // The password of the Wi-Fi network
-const char* mqtt_server = "YOUR_MQTT_IP_HERE";      // The target mqtt server
+const char* ssid     = "International_House_of_Corgi_24";            // The SSID (name) of the Wi-Fi network you want to connect to
+const char* password = "ElwoodIsBigAndFat";        // The password of the Wi-Fi network
+const char* mqtt_server = "192.168.1.210";      // The target mqtt server
 String clientId = "Collector_1";
 
 // declare our Wifi and MQTT connections
@@ -121,24 +121,9 @@ void setup() {
 }
 
 void loop() {
-  // Current time
-  now = millis();
+    // Current time
+    now = millis();
 
-    int SensorData=digitalRead(soundSensor); 
-    
-    if(SensorData==1){
-        if(LEDStatus==false){
-            LEDStatus=true;
-            digitalWrite(REDLED,HIGH); // this turns on the LED when sound is detected
-            Serial.println("Sound Detected!");
-            Sound_Alert = true;
-        }
-        else{
-            LEDStatus=false;
-            Sound_Alert = false;
-            digitalWrite(REDLED,LOW); //when the sound stops the LED will turn off
-        }
-    }
 
     if(Timer_Start && (now - motion_Last_Triggered > (timeSeconds*1000))) {
         Timer_Start = false;
@@ -151,18 +136,11 @@ void loop() {
         reconnectMQ();
     }
 
-    if(Alert_1) {
+    if(Alert_1 && Sound_Alert) {
         Serial.println("Sending Alert!");
         while (!client.publish("Security", "\"Unit\":\"Collector_1\", \"Alert\":\"ACTIVE\"")){
-            Serial.print(".");
-        } 
-    } else {
-        Serial.println("Alert Cleared");
-        while (!client.publish("Security", "\"Unit\":\"Collector_1\", \"Alert\":\"ENDED\"")){
             Serial.print(".");
         }
     
     } 
-
-
 }
