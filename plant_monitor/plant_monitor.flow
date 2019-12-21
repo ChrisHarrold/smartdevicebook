@@ -1,0 +1,559 @@
+[
+    {
+        "id": "7a166cf3.ee72c4",
+        "type": "tab",
+        "label": "Plant Monitor 1.0",
+        "disabled": false,
+        "info": "Use this flow where each grouping of sensors\nwill communicate only to its \"local\" controller\n\nThis implies a \"multiple master\" architecture of\nMQTT and NodeRed devices.\n\nThis does NOT allow consolidated reporting of all\ndevices unless a flow is added to pull the data\nfrom the consolidated database"
+    },
+    {
+        "id": "64df07b4.98da78",
+        "type": "mqtt in",
+        "z": "7a166cf3.ee72c4",
+        "name": "All Sensors",
+        "topic": "#",
+        "qos": "2",
+        "broker": "181939d4.6ef466",
+        "x": 102.85714721679688,
+        "y": 65.71428680419922,
+        "wires": [
+            [
+                "da11793c.ea6d98"
+            ]
+        ]
+    },
+    {
+        "id": "2163e505.f5510a",
+        "type": "moment",
+        "z": "7a166cf3.ee72c4",
+        "name": "Create Timestamp",
+        "topic": "stamped",
+        "input": "",
+        "inputType": "date",
+        "inTz": "America/Denver",
+        "adjAmount": 0,
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "MM/DD/YYYY hh:mm:ss",
+        "locale": "en_US",
+        "output": "timestamp",
+        "outputType": "msg",
+        "outTz": "America/Denver",
+        "x": 541.5238342285156,
+        "y": 96.047607421875,
+        "wires": [
+            [
+                "139211df.1b8e9e"
+            ]
+        ]
+    },
+    {
+        "id": "62e7e24f.535c6c",
+        "type": "Message Counter",
+        "z": "7a166cf3.ee72c4",
+        "name": "Connection Counter",
+        "units": "hours",
+        "interval": "24",
+        "alignToClock": true,
+        "generator": "internal",
+        "x": 541.5476684570312,
+        "y": 163.7142791748047,
+        "wires": [
+            [
+                "269486ca.faac2a"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "269486ca.faac2a",
+        "type": "ui_gauge",
+        "z": "7a166cf3.ee72c4",
+        "name": "Connections - 24 Hours",
+        "group": "ff9786bc.fbc768",
+        "order": 0,
+        "width": "4",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Connections Last 24 Hrs.",
+        "label": "Connections",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 816.5477294921875,
+        "y": 156.7142791748047,
+        "wires": []
+    },
+    {
+        "id": "da11793c.ea6d98",
+        "type": "json",
+        "z": "7a166cf3.ee72c4",
+        "name": "Convert to JSON format",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 313.8809585571289,
+        "y": 65.76191329956055,
+        "wires": [
+            [
+                "2163e505.f5510a",
+                "8829c593.0eb9d8"
+            ]
+        ]
+    },
+    {
+        "id": "139211df.1b8e9e",
+        "type": "switch",
+        "z": "7a166cf3.ee72c4",
+        "name": "Check for control message",
+        "property": "payload.MQTT",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 210.071533203125,
+        "y": 169.61904907226562,
+        "wires": [
+            [
+                "62e7e24f.535c6c"
+            ],
+            [
+                "aa8e552c.ffd228"
+            ]
+        ]
+    },
+    {
+        "id": "dcf1e82b.08d628",
+        "type": "mqtt out",
+        "z": "7a166cf3.ee72c4",
+        "name": "Generate some messages",
+        "topic": "traffic",
+        "qos": "0",
+        "retain": "false",
+        "broker": "181939d4.6ef466",
+        "x": 432.5,
+        "y": 1184.9999933242798,
+        "wires": []
+    },
+    {
+        "id": "1b150ba9.d216a4",
+        "type": "inject",
+        "z": "7a166cf3.ee72c4",
+        "name": "S1 Timer",
+        "topic": "traffic",
+        "payload": "{\"Group\":\"G1\", \"Sensor\":\"S1\", \"delta_time\":\"4\"}",
+        "payloadType": "str",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 157.5,
+        "y": 1108.3332554499307,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7c438d77.d1d674",
+        "type": "inject",
+        "z": "7a166cf3.ee72c4",
+        "name": "S2 Timer",
+        "topic": "traffic",
+        "payload": "{\"Group\":\"G1\", \"Sensor\":\"S2\", \"delta_time\":\"4\"}",
+        "payloadType": "str",
+        "repeat": "11",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 158.3333282470703,
+        "y": 1161.666527748108,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "157186e5.38f589",
+        "type": "inject",
+        "z": "7a166cf3.ee72c4",
+        "name": "S3 Timer",
+        "topic": "traffic",
+        "payload": "{\"Group\":\"G1\", \"Sensor\":\"S3\", \"delta_time\":\"4\"}",
+        "payloadType": "str",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 156.66665649414062,
+        "y": 1218.3332147598267,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2f96328e.1884ce",
+        "type": "inject",
+        "z": "7a166cf3.ee72c4",
+        "name": "S4 Timer",
+        "topic": "traffic",
+        "payload": "{\"Group\":\"G1\", \"Sensor\":\"S4\", \"delta_time\":\"4\"}",
+        "payloadType": "str",
+        "repeat": "20",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 156.66665649414062,
+        "y": 1271.666527748108,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ba91d501.326648",
+        "type": "inject",
+        "z": "7a166cf3.ee72c4",
+        "name": "Control Plane Injection",
+        "topic": "meta",
+        "payload": "{\"Group\":\"G1\", \"Sensor\":\"S1\",\"MQTT\":\"Reconnected\"}",
+        "payloadType": "str",
+        "repeat": "22",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 185.83333333333331,
+        "y": 1046.6666666666665,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "864aae27.13bb5",
+        "type": "ui_chart",
+        "z": "7a166cf3.ee72c4",
+        "name": "Temperature last 24 Hours",
+        "group": "b4d73223.0e487",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Temperature",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "No current data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "24",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "x": 797.5,
+        "y": 402,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "aa8e552c.ffd228",
+        "type": "function",
+        "z": "7a166cf3.ee72c4",
+        "name": "Split Sensor Payloads",
+        "func": "\nif (msg.payload.Message == \"Sensor1\") {\n   var msg1 = { payload: msg.payload.Sensors.S1 };\n   return [ msg1, null, null, null ];\n}\n\n\nif (msg.payload.Message == \"Temp_Hum_Light\") {\n   var msg2 = { payload: msg.payload.Sensors.Humidity };\n   var msg3 = { payload: msg.payload.Sensors.Temperature };\n   var msg4 = { payload: msg.payload.Sensors.Light };\n   return [ null, msg2, msg3, msg4 ];\n}",
+        "outputs": 4,
+        "noerr": 0,
+        "x": 408.5,
+        "y": 374,
+        "wires": [
+            [
+                "7a315f1c.3aaa2"
+            ],
+            [
+                "864aae27.13bb5"
+            ],
+            [
+                "238ec41f.70c3ec"
+            ],
+            [
+                "ce1f3a8e.71bf28"
+            ]
+        ]
+    },
+    {
+        "id": "238ec41f.70c3ec",
+        "type": "ui_chart",
+        "z": "7a166cf3.ee72c4",
+        "name": "Humidity Last 24 Hours",
+        "group": "b4d73223.0e487",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Humidity",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "24",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "x": 788.5,
+        "y": 443,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "ce1f3a8e.71bf28",
+        "type": "ui_chart",
+        "z": "7a166cf3.ee72c4",
+        "name": "Light level - 4 hours",
+        "group": "b4d73223.0e487",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Light Level",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": "24",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "x": 768.5,
+        "y": 483,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "7a315f1c.3aaa2",
+        "type": "function",
+        "z": "7a166cf3.ee72c4",
+        "name": "set moisture %",
+        "func": "var amount = (msg.payload)\nvar percent = (900-amount)/900 * 100\nvar msg1 = { payload: percent + \"%\" };\nreturn msg1;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 705.5,
+        "y": 354,
+        "wires": [
+            [
+                "64fef85e.71eff8"
+            ]
+        ]
+    },
+    {
+        "id": "a7078f87.c153",
+        "type": "ui_text",
+        "z": "7a166cf3.ee72c4",
+        "group": "dd13fe4e.f897b",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "Last Message Update",
+        "label": "Last Message Received:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 1030.5,
+        "y": 32,
+        "wires": []
+    },
+    {
+        "id": "8829c593.0eb9d8",
+        "type": "moment",
+        "z": "7a166cf3.ee72c4",
+        "name": "Create Timestamp",
+        "topic": "Timestamp",
+        "input": "",
+        "inputType": "date",
+        "inTz": "America/Denver",
+        "adjAmount": 0,
+        "adjType": "days",
+        "adjDir": "add",
+        "format": "MM/DD/YYYY kk:mm:ss",
+        "locale": "en_US",
+        "output": "payload",
+        "outputType": "msg",
+        "outTz": "America/Denver",
+        "x": 546,
+        "y": 33,
+        "wires": [
+            [
+                "a7078f87.c153"
+            ]
+        ]
+    },
+    {
+        "id": "64fef85e.71eff8",
+        "type": "ui_gauge",
+        "z": "7a166cf3.ee72c4",
+        "name": "Moisture Level",
+        "group": "ee7119e8.c3daa8",
+        "order": 0,
+        "width": "2",
+        "height": "2",
+        "gtype": "wave",
+        "title": "Moisture Level",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 956.5,
+        "y": 354,
+        "wires": []
+    },
+    {
+        "id": "181939d4.6ef466",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "Home Network",
+        "broker": "192.168.1.210",
+        "port": "1883",
+        "clientid": "Dashboard-Host-1",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "ff9786bc.fbc768",
+        "type": "ui_group",
+        "z": "",
+        "name": "Connection Attempts",
+        "tab": "b2e63631.2d4c78",
+        "order": 1,
+        "disp": true,
+        "width": "4",
+        "collapse": false
+    },
+    {
+        "id": "b4d73223.0e487",
+        "type": "ui_group",
+        "z": "",
+        "name": "Temp and Humidity",
+        "tab": "eaf2b676.244aa8",
+        "order": 2,
+        "disp": true,
+        "width": "4",
+        "collapse": false
+    },
+    {
+        "id": "dd13fe4e.f897b",
+        "type": "ui_group",
+        "z": "",
+        "name": "Update Delta",
+        "tab": "b2e63631.2d4c78",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "ee7119e8.c3daa8",
+        "type": "ui_group",
+        "z": "",
+        "name": "My Plant",
+        "tab": "eaf2b676.244aa8",
+        "order": 3,
+        "disp": true,
+        "width": "2",
+        "collapse": false
+    },
+    {
+        "id": "b2e63631.2d4c78",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Meta Information",
+        "icon": "settings",
+        "order": 2
+    },
+    {
+        "id": "eaf2b676.244aa8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Garden Information",
+        "icon": "settings",
+        "order": 2
+    }
+]

@@ -131,12 +131,11 @@ void loop() {
     // Read temperature as Celsius (the default)
     float temperature = dht.readTemperature();
     dtostrf(temperature, 4, 2, str_temperature);
-    // Check if any reads failed and if so alert the master and set values to 0 so the process can continue
+    // Check if any reads failed and if so alert and set values to 0 so the process can continue
     if (isnan(humidity) || isnan(temperature)) {
         Serial.println("Failed to read from DHT sensor!");
-        client.publish("garden1", "{\"Error\":\"Humidty/Temp Sensor Offline!\"}");
-        humidity = 0;
-        temperature = 0;
+        str_humidity = "0";
+        str_temperature = "0";
     } else {
         // print the result to Terminal
         Serial.print("Humidity: ");
