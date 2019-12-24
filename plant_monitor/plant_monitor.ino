@@ -15,7 +15,7 @@ const int power = 22;
 const int exec = 21;
 const int net = 16;
 const int light = 36;
-const int probe = 39;
+const int probe = 34;
 
 // mqtt client uses a character array (because strings are taboo in C?) - this is empyrically bad and resulted in much anguish
 char data0[50]; //Will hold the soil moisture data
