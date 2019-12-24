@@ -1,4 +1,4 @@
-// due to the nature of real-time monitoring, this code executes slightly firrently from the RPi code
+// due to the nature of real-time monitoring, this code executes slightly differently from the RPi code
 // this is due to the fact that the NODEMCU esentially listens "all the time" to the digital pinMode
 // whereas the Pi listens as part of a loop and it runs slower meaning there is a "gap" in the listening
 // This wil essentially make the red LED come on with sound just like the onboard LED on the sensor.
@@ -19,7 +19,6 @@ void setup() {
 }
 
 void loop() {
-
 
   int SensorData=digitalRead(soundSensor); 
   if(SensorData==1){
