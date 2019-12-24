@@ -4,6 +4,15 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
+// ============================ YOU NEED TO CHANGE THIS SECTION TO MATCH YOUR NETWORK!! =========================================================
+// declare our Wifi and MQTT connections and other constant settings for the network
+const char* ssid     = "International_House_of_Corgi_24";            // The SSID (name) of the Wi-Fi network you want to connect to
+const char* password = "ElwoodIsBigAndFat";                          // The password of the Wi-Fi network
+const char* mqtt_server = "192.168.1.210";                           // The target mqtt server
+String clientId = "GP1";                                             // The client ID of this collector - unique to this collector
+// ===================================================================================================================================================
+
+
 //our sensor is DHT11 type
 //creates an instance of DHT sensor
 #define DHTPIN 17
@@ -32,12 +41,6 @@ char str_humidity[10];  //holds the humidity value
 char s1[8];  //holds the converted value from the soil moisture probe to be published via MQTT
 float sm_value[8];  // holds the raw voltage reading off the soil moisture probe
 int placeholder_value; // exactly what it looks like :-) just a plasceholder to get replaced with other data later
-
-// declare our Wifi and MQTT connections and other constant settings for the network
-const char* ssid     = "International_House_of_Corgi_24";            // The SSID (name) of the Wi-Fi network you want to connect to
-const char* password = "ElwoodIsBigAndFat";                          // The password of the Wi-Fi network
-const char* mqtt_server = "192.168.1.210";                           // The target mqtt server
-String clientId = "GP1";                                             // The client ID of this collector - if you added more you would need to change this on each one
 
 // declare our Wifi and MQTT connections
 WiFiClient espClient;
