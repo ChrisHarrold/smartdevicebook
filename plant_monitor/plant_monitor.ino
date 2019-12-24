@@ -49,7 +49,7 @@ PubSubClient client(espClient);
 //
 void reconnectMQ() {
 
-  digitalWrite(net, LOW);  // turn the Blue NET LED Off
+  digitalWrite(net, LOW);  // turn the Blue NET LED Off if connection not established
 
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Wifi not connected - configuring");
@@ -77,10 +77,11 @@ void reconnectMQ() {
   payload.toCharArray(data1, (payload.length() + 1));
   client.publish("control", data1); //the "control" topic is just for notifications - change to fit your needs
 
-  digitalWrite(net, HIGH);  // turn the Blue NET LED on
-  delay(5000);
+  digitalWrite(net, HIGH);  // turn the Blue NET LED on when reconnected
+  delay(5000);  //sleep for 5 seconds to allow the connection to stabilize - not explicitly required but a good idea
 }
 
+//connect to the wifi network and obtain an IP address
 void setup_wifi() {
   delay(10);
   Serial.print("Connecting to ");
@@ -88,35 +89,35 @@ void setup_wifi() {
 
   WiFi.begin(ssid, password);             // Connect to the wifi network
 
-  while (WiFi.status() != WL_CONNECTED) // Wait for the Wi-Fi to connect
+  while (WiFi.status() != WL_CONNECTED) // Wait for the Wi-Fi to connect and print a status while waiting
     delay(1000);
     Serial.print('.');
 
   Serial.println('\n');
   Serial.println("Connected!");  
   Serial.print("IP address:\t");
-  Serial.println(WiFi.localIP());         // Send the IP address of the ESP32 to the serial port
+  Serial.println(WiFi.localIP());         // Print the IP address of the ESP32 to the serial port
   
 }
 
 void setup() {
   Serial.begin(9600); // open serial port, set the baud rate as 9600 bps
   
-  // These Options control the precision of the reading, and the voltage reduction capability of the ESP32
-  // Attenuation number 3 is 11DB
+  // These Options control the precision of the analog reading, and the voltage reduction capability of the ESP32
+  // Attenuation number 3 is 11DB and is the widely recommended setting 
   analogSetWidth(10);
   analogSetAttenuation((adc_attenuation_t)3);
 
   // Define the MQTT Server connection settings and then launch the MQTT Connection
   client.setServer(mqtt_server, 1883);
   
-  // Set output and input pins to correct modes
+  // Set output and input pins to correct modes and start the dht sensor pin 
   pinMode (power, OUTPUT);
   pinMode (exec, OUTPUT);
   pinMode (net, OUTPUT);
   dht.begin();
   
-  //Turn on Green Power light
+  //Turn on Green "Power" light
   digitalWrite (power, HIGH);
   Serial.println("Starting up");
   
@@ -129,51 +130,54 @@ void loop() {
   //Turn on RED EXEC light - this means a sample is being taken
   digitalWrite (exec, HIGH);
 
-  //DHT11 read and collect variables
+  //DHT11 read and collect variables - float is a numeric type with better precision than int
   float humidity = dht.readHumidity();
-  // Read temperature as Celsius (the default)
+  // Read temperature as Celsius (the default - can be change to Farenheit if desired)
   float temperature = dht.readTemperature();
-  // Check if any reads failed and if so alert and set values to 0 so the process can continue
+  // Check if any reads failed and if so alert to the console, 
+  // and set values to 0 so the process can continue - DHT11 sensors are notoriously flaky
   if (isnan(humidity) || isnan(temperature)) {
       Serial.println("Failed to read from DHT sensor!");
       temperature = 0;
       humidity = 0;
       dtostrf(humidity, 4, 2, str_humidity);
       dtostrf(temperature, 4, 2, str_temperature);
+  //actually got a clean reading so go down the happy path and format the reading for the MQTT message    
   } else {
+      // dtostrf is a C++ function that formats strings with complex values
       dtostrf(temperature, 4, 2, str_temperature);
       dtostrf(humidity, 4, 2, str_humidity);
-      // print the result to Terminal
-      Serial.print("Humidity: ");
-      Serial.print(humidity);
-      Serial.print(" %\t");
-      Serial.print("Temperature: ");
-      Serial.print(temperature);
+      // print the result sto Terminal for a sanity check - you can use this type of format for long strings
+      // instead of single lines, although this might be a little less readable
+      Serial.print("Humidity: "); Serial.print(humidity); Serial.print(" %\t"); 
+      Serial.print("Temperature: "); Serial.print(temperature); 
       Serial.println(" *C ");
   }
 
-  //Read value and print to serial for S1
-
-    float soil_moisture = analogRead(probe);
-    dtostrf(soil_moisture, 4, 2, s1);
-    Serial.print("Soil moisture level (raw): ["); Serial.print(s1); Serial.println("]");
+  //Read value, convert to a string value, and print to serial for S1
+  float soil_moisture = analogRead(probe);
+  dtostrf(soil_moisture, 4, 2, s1);
+  Serial.print("Soil moisture level (raw): ["); Serial.print(s1); Serial.println("]");
    
-    int L1 = analogRead(light);
-    Serial.print("Light level: ");
-    Serial.print(L1);
-    Serial.println();
-  
+  // read the light sensor input and get the analog voltage level (1023 is full light, and anything less is, well, less) 
+  int L1 = analogRead(light);
+  Serial.print("Light level: "); Serial.print(L1); Serial.println();
 
+  //defore I go ahead and publish messages to the MQTT server, always a good idea to check the connection and reconnect if needed
   if (!client.connected()) {
     reconnectMQ();
   }
   
+  // publish the sensor value. the sprintf is also a string formatting tool in C++ - in this case allowing you to insert
+  // a variable into a string. The string looks complex because it has to be JSON at the other end for NodeRed
+  // there are other (perhaps more elegant) ways to skin this cat as it were, but this one worls solidly
   placeholder_value=sprintf(data0, "{\"Message\":\"Sensor1\", \"Sensors\": {\"S1\":\"%s\"}}", s1);
   Serial.println("Publishing message 1:");
   while (!client.publish("garden1", data0)) {
     Serial.print(".");
   }
-
+// second message to MQTT with the temp/humidity/light values - MQTT payloads are fixed length, so breaking them up like this
+// might not be optional if you collect a lot of data from the sensor pack
   placeholder_value=sprintf(data2, "{\"Message\":\"Temp_Hum_Light\", \"Sensors\": {\"Humidity\":\"%s\", \"Temperature\":\"%s\", \"Light\":\"%d\"}}", str_humidity, str_temperature, L1);
   Serial.println("Publishing message 3:");
   while (!client.publish("garden1", data2)){
@@ -184,6 +188,12 @@ void loop() {
   digitalWrite (exec, LOW);
   digitalWrite (net, LOW);
   
+  // sleep for the "timer_value"
   delay(timer_value);
+
+  // reboot - I do not like that this has to happen, but there are serious conflicts in the MQTT library and the DHT11 
+  // library and if you try and just loop back after the delay it will hang forever. This is a terrible "fix"
+  // but I traded elegance for functionality. Also, you might want to use something like esp.deepSleep here
+  // to save power so really, it will probably "reboot" every time anyway.
   ESP.restart();
 }
