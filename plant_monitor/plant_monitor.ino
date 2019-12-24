@@ -16,24 +16,28 @@ const int exec = 21;
 const int net = 16;
 const int light = 36;
 const int probe = 34;
+// define the wait time beteen readings (miliseconds) - the max value for this is 2147483647 which is roughly 25 days
+// realistically a reading every 4 hours (14400000) for an outdoor garden 
+// or 8 hours (28800000) for a potted plant is probably fine - by default the interval is 10 seconds. This is far too short
+// and once you are satisfied with the readings you should for sure change it.
+const int timer_value = 10000;
 
-// mqtt client uses a character array (because strings are taboo in C?) - this is empyrically bad and resulted in much anguish
+// everything text-related in C++ uses character arrays 
+// <sarcasm>because strings weren't challenging enough...</sarcasm>
 char data0[50]; //Will hold the soil moisture data
 char data1[50]; //will hold "control" data updates for the MQTT system
 char data2[50]; //will hold the temp, humidity and light data
-char data3[50];
-char str_temperature[10];
-char str_humidity[10];
-char s1[8];
-float sm_value[8];
-int placeholder_value;
+char str_temperature[10]; //holds the temperature value
+char str_humidity[10];  //holds the humidity value
+char s1[8];  //holds the converted value from the soil moisture probe to be published via MQTT
+float sm_value[8];  // holds the raw voltage reading off the soil moisture probe
+int placeholder_value; // exactly what it looks like :-) just a plasceholder to get replaced with other data later
 
 // declare our Wifi and MQTT connections and other constant settings for the network
 const char* ssid     = "International_House_of_Corgi_24";            // The SSID (name) of the Wi-Fi network you want to connect to
 const char* password = "ElwoodIsBigAndFat";                          // The password of the Wi-Fi network
-const char* mqtt_server = "192.168.1.210";                             // The target mqtt server
-String clientId = "GP1";
-int lcount = 0;
+const char* mqtt_server = "192.168.1.210";                           // The target mqtt server
+String clientId = "GP1";                                             // The client ID of this collector - if you added more you would need to change this on each one
 
 // declare our Wifi and MQTT connections
 WiFiClient espClient;
@@ -179,8 +183,7 @@ void loop() {
   //Turn off RED EXEC light - this means a sample is done
   digitalWrite (exec, LOW);
   digitalWrite (net, LOW);
-  lcount = lcount + 1;
   
-  delay(10000);
+  delay(timer_value);
   ESP.restart();
 }
