@@ -4,14 +4,16 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// ============================ YOU NEED TO CHANGE THIS SECTION TO MATCH YOUR NETWORK!! =========================================================
-// declare our Wifi and MQTT connections and other constant settings for the network
-const char* ssid     = "International_House_of_Corgi_24";            // The SSID (name) of the Wi-Fi network you want to connect to
-const char* password = "ElwoodIsBigAndFat";                          // The password of the Wi-Fi network
-const char* mqtt_server = "192.168.1.210";                           // The target mqtt server
-String clientId = "GP1";                                             // The client ID of this collector - unique to this collector
-// ===================================================================================================================================================
-
+// ======YOU NEED TO CHANGE THIS SECTION TO MATCH YOUR NETWORK!!======================
+// The SSID (name) of the Wi-Fi network you want to connect to
+const char* ssid     = "International_House_of_Corgi_24";            
+// The password of the Wi-Fi network
+const char* password = "ElwoodIsBigAndFat";                          
+// The target mqtt server - in theory this is your Raspberry Pi IP address, but can be whatever you are using
+const char* mqtt_server = "192.168.1.210";                
+// The client ID of this collector - unique to this collector but just an ID for MQTT to use
+String clientId = "GP1";                                             
+// ======================================================================================
 
 //our sensor is DHT11 type
 //creates an instance of DHT sensor
